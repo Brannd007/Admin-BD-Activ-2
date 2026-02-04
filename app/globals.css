@@ -24,3 +24,30 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Card utility */
+.card {
+  @apply bg-white/95 rounded-lg shadow p-6 dark:bg-zinc-900/95 dark:text-zinc-100;
+}
+
+/* Table styling */
+.table {
+  @apply w-full border-collapse rounded-md overflow-hidden border border-gray-200 dark:border-zinc-700;
+}
+.table th {
+  @apply text-left px-4 py-3 text-sm font-semibold bg-indigo-100 text-indigo-900 dark:bg-indigo-800 dark:text-indigo-100;
+}
+.table td {
+  @apply px-4 py-3 text-sm border-t border-gray-100 dark:border-zinc-700;
+  color: inherit;
+}
+.table tbody tr:nth-child(even) td {
+  @apply bg-gray-50 dark:bg-zinc-900/60;
+}
+.table tbody tr:hover td {
+  @apply bg-indigo-50 dark:bg-indigo-700/20;
+}
+
+select, input {
+  @apply rounded border px-3 py-2 text-sm;
+}
