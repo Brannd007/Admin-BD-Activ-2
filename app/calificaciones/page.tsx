@@ -1,19 +1,54 @@
-'use client';
-import { useState } from 'react';
-import { db, getGradesByStudent } from '../../lib/mockData';
+"use client";
+import { useEffect, useState } from "react";
+
+interface Alumno {
+  id: number;
+  nombre: string;
+  apellido: string;
+  matricula: string;
+}
+
+interface Calificacion {
+  materia: string;
+  calificacion: number;
+}
 
 export default function Calificaciones() {
-  const students = db.students;
-  const [studentId, setStudentId] = useState(students[0]?.id ?? '');
-  const rows = studentId ? getGradesByStudent(studentId) : [];
+  const [students, setStudents] = useState<Alumno[]>([]);
+  const [studentId, setStudentId] = useState<number | null>(null);
+  const [rows, setRows] = useState<Calificacion[]>([]);
+
+  useEffect(() => {
+    fetch("/api/alumnos-proyeccion")
+      .then((res) => res.json())
+      .then((data) => {
+        setStudents(data);
+        if (data.length > 0) setStudentId(data[0].id);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (studentId) {
+      fetch(`/api/calificaciones?alumnoId=${studentId}`)
+        .then((res) => res.json())
+        .then((data) => setRows(data));
+    }
+  }, [studentId]);
 
   return (
     <div className="card">
       <h2 className="text-xl font-semibold mb-4">5. Calificaciones por Alumno</h2>
       <div className="flex items-center gap-3">
         <label>Selecciona alumno:</label>
-        <select value={studentId} onChange={e=>setStudentId(e.target.value)}>
-          {students.map(s => <option key={s.id} value={s.id}>{s.matricula} — {s.nombre} {s.apellido}</option>)}
+        <select
+          value={studentId ?? ""}
+          onChange={(e) => setStudentId(Number(e.target.value))}
+        >
+          {students.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.matricula} — {s.nombre} {s.apellido}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -35,7 +70,9 @@ export default function Calificaciones() {
         </tbody>
       </table>
 
-      <p className="text-sm text-gray-500 mt-4"><strong>Consulta relacionada:</strong> JOIN alumno–materia–calificación</p>
+      <p className="text-sm text-gray-500 mt-4">
+        <strong>Consulta relacionada:</strong> JOIN alumno–materia–calificación
+      </p>
     </div>
   );
 }

@@ -1,11 +1,42 @@
-'use client';
-import { useState } from 'react';
-import { db, getKardexForStudent } from '../../lib/mockData';
+"use client";
+import { useEffect, useState } from "react";
+
+interface Alumno {
+  id: number;
+  nombre: string;
+  apellido: string;
+  matricula: string;
+}
+
+interface Kardex {
+  alumno: string;
+  matricula: string;
+  carrera: string;
+  materias: { materia: string; calificacion: number }[];
+  promedio: number | null;
+}
 
 export default function Kardex() {
-  const students = db.students;
-  const [studentId, setStudentId] = useState(students[0]?.id ?? '');
-  const kardex = studentId ? getKardexForStudent(studentId) : null;
+  const [students, setStudents] = useState<Alumno[]>([]);
+  const [studentId, setStudentId] = useState<number | null>(null);
+  const [kardex, setKardex] = useState<Kardex | null>(null);
+
+  useEffect(() => {
+    fetch("/api/alumnos-proyeccion")
+      .then((res) => res.json())
+      .then((data) => {
+        setStudents(data);
+        if (data.length > 0) setStudentId(data[0].id);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (studentId) {
+      fetch(`/api/kardex?alumnoId=${studentId}`)
+        .then((res) => res.json())
+        .then((data) => setKardex(data));
+    }
+  }, [studentId]);
 
   return (
     <div className="card">
@@ -13,7 +44,7 @@ export default function Kardex() {
 
       <div className="flex items-center gap-3">
         <label>Selecciona alumno:</label>
-        <select value={studentId} onChange={e=>setStudentId(e.target.value)}>
+        <select value={studentId ?? ""} onChange={e=>setStudentId(Number(e.target.value))}>
           {students.map(s => <option key={s.id} value={s.id}>{s.matricula} — {s.nombre} {s.apellido}</option>)}
         </select>
       </div>

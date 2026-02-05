@@ -1,8 +1,13 @@
-'use client';
-import { getStudentCareer } from '../../lib/mockData';
 
-export default function AlumnoCarrera() {
-  const rows = getStudentCareer();
+import connection from '@/lib/mysqlConnection';
+
+export default async function AlumnoCarrera() {
+  const [rows] = await connection.query(`
+    SELECT CONCAT(a.nombre, ' ', a.apellido) AS alumno, a.matricula, c.nombre AS carrera
+    FROM Alumnos a
+    JOIN Carrera c ON a.carrera_id = c.id
+  `);
+
   return (
     <div className="card">
       <h2 className="text-xl font-semibold mb-4">3. Consulta Alumno – Carrera</h2>
@@ -15,7 +20,7 @@ export default function AlumnoCarrera() {
           </tr>
         </thead>
         <tbody>
-          {rows.map((r, i) => (
+          {(rows as any[]).map((r, i) => (
             <tr key={i}>
               <td>{r.alumno}</td>
               <td>{r.matricula}</td>
